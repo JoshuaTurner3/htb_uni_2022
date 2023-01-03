@@ -1,4 +1,4 @@
-# No matter how cool your spells are, the NSA still runs your Cryptography
+# Cryptography transcends wizardry
 
 ## The Challenge
 In this challenge, the user connects to the server and is prompted with the following question:
