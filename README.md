@@ -346,3 +346,5 @@ Running the server in a separate terminal with the given blocks and substituing 
 
 ## Conclusion
 This was my first CTF, second challenge I had ever looked at, and first CTF challenge I feel like I solved independently (Most of this came to me in a dream during a shower) and I have to say it was a lot of fun. I would like to say thank you to all my wonderful teammates who welcomed me into this incredible club and helped me get started on this challenge and all others, it has been great to work with you all. Additionally, I would like to give thanks to HackTheBox for putting on such an amazing competition with tons of unique challenges.
+
+<sub>If you have any comments or questions shoot me a message, thanks again for reading!</sub>
