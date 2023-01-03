@@ -47,7 +47,7 @@ def main():
             print("Only different properties are allowed!")
             exit(1)
 ```
-The program begins as observed above, with a prompt for a magic wand characteristic. Following this, the chracteristic is converted to bytes, and added to a list of prior  characteristics if it is unique. The characterstic is then encrypted using the provided custom AESWCM class and appended to a list of prior AES encrypted tags. The flag is revealed if the length of the tag list is greater than the length of the set of the tags list; that is, if there is a duplicate in the tag list then the flag is printed. Therefore, all that must be achieved to determine the flag is AES collision; however, AES is not a hash function and there are no collisions, so there must be some error in the provided AESWCM class that facilitates a collision.
+The program begins as observed above, with a prompt for a magic wand characteristic. Following this, the chracteristic is converted to bytes, and added to a list of prior  characteristics if it is unique. The characterstic is then encrypted using the provided custom `AESWCM` class and appended to a list of prior `AES` encrypted tags. The flag is revealed if the length of the tag list is greater than the length of the set of the tags list; that is, if there is a duplicate in the tag list then the flag is printed. Therefore, all that must be achieved to determine the flag is `AES` collision; however, `AES` is not a hash function and there are no collisions, so there must be some error in the provided `AESWCM` class that facilitates a collision.
 ## Encryption Analysis
 Beginning our analysis of the `AESWCM` class, let us briefly go through `AESWCM.__init__`.
 ```python
