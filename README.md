@@ -61,9 +61,10 @@ Within this constructor, there are three important variables created.
 2. $self.cipher$
 3. $self.BLOCK\\_SIZE$
 
-$self.key$ is aptly named because it is the key to the `AES` encryption method implemented within the `AESWCM` class. What `AES` mode is used, you might ask? Well, using my top notch detective skills (I out the NSA to shame) on the assignment of `self.cipher` to `AES.new(self.key, AES.MODE_ECB)` I think it is safe to say we are using `AES-ECB`, which is an insecure `AES` encryption standard that I will discuss momentarily. The final variable declared is $self.BLOCK\\_SIZE$ which simply designates the number of bytes per *block* for the `AES-ECB` encryption.
+$self.key$ is aptly named because it is the key to the `AES` encryption method implemented within the `AESWCM` class. What `AES` mode is used, you might ask? Well, using my top notch detective skills (I put the NSA to shame <sub>Hire me please</sub>) on the assignment of `self.cipher` to `AES.new(self.key, AES.MODE_ECB)` I think it is safe to say we are using `AES-ECB`, which is an insecure `AES` encryption standard that I will discuss momentarily. The final variable declared is $self.BLOCK\\_SIZE$ which simply designates the number of bytes per *block* for the `AES-ECB` encryption.
+
 ### A Review of AES-ECB
-Let's take a brief moment to review `AES-ECB` and why it is one of the more (if not most) insecure `AES` modes. To begin, `AES-ECB` is a block cipher, meaning that it splits a plaintext into blocks of a particular number of bytes. In our case, `self.BLOCK\\_SIZE` is $16$, meaning that the plaintext encrypted will be split into block of size $16$ bytes. For instance, consider the following example:
+Let's take a brief moment to review `AES-ECB` and why it is one of the more (if not most) insecure `AES` modes. To begin, `AES-ECB` is a block cipher, meaning that it splits a plaintext into blocks of a particular number of bytes. In our case, $self.BLOCK\\_SIZE$ is $16$, meaning that the plaintext encrypted will be split into blocks of size $16$ bytes. For instance, consider the following example:
 ```
 pt = "000000000000000000000000000000000101010101010101010101010101010102020202020202020202020202020202"
 pt_blocks = blockify(pt)
@@ -112,7 +113,7 @@ ct_2 = "18b44cd1683cf0b227de75a43a5b2f462357ff9ee5b21a1b9b2464644b094823"
 # The first 16 bytes of both ciphertexts are the same because they the same plaintext
 ```
 This is one of the primary ways in which `AES-ECB` is vulnerable to attacks, the same plaintext will result in the same ciphertext every time. Now that `AES-ECB` has been briefly reviewed, let us move onto some `AESWCM` class functions
-### `pad` Function
+### The `pad` Function
 As priorly discussed, `AES-ECB` is a block cipher and encrypts blocks of a particular size (in this case $16$ bytes); however, what if a block has $<16$ bytes? Well, this is where padding comes in, it essentially adds bytes of information to the end of a block until it is the required encryption size. This particular function really just calls the padding function defined in `Crypto.Util.Padding` so long as $len(pt)\not\equiv0\hspace{.15cm}mod\hspace{0.15cm}self.BLOCK\\_SIZE$.
 ```python
     def pad(self, pt):
@@ -126,7 +127,7 @@ pt = b'pad this'
 # pt_pad = pad(pt)
 pt_pad = b'pad this\x08\x08\x08\x08\x08\x08\x08\x08'
 ```
-### `blockify` Function
+### The `blockify` Function
 The aptly named `blockify` function is quite straightforward. Essentially, it accepts a byte array $message$ parameter and splits it into *blocks* with a size of $self.BLOCK\\_SIZE$ bytes. 
 ```python
     def blockify(self, message):
@@ -140,7 +141,7 @@ An example output from this function is as such:
 pt = b'blockify this message please and thank you :)'
 pt_blocks = [b'blockify this me', b'ssage please and', b' thank you :)']
 ```
-### `xor` Function
+### The `xor` Function
 The `xor` function does exactly as the name implies and xors two $16$ element byte arrays together. XOR is also known as the eXclusive OR (XOR) function, $\oplus$ is the typical math notation for xor, ^ is the bitwise operator for xor in python. It has the following operation:
 | $A$ | $B$ | $A\oplus B$ |
 | --- | --- | --- |
@@ -155,8 +156,9 @@ Additionally, it has several useful properties:
 - $(A\oplus B)\oplus C = A\oplus (B\oplus C)$
 - $A\oplus B = B\oplus A$
 - $A\oplus B=C \Rightarrow A\oplus C = B \wedge C\oplus B = A$  
-For this challenge in particular, the most important properties are $\oplus$'s commutativity property and the fact that to undo a $\oplus$ you perform $oplus$ on the result with either $term$ (The last property in the list above)
-### `encrypt` Function
+For this challenge in particular, the most important properties are $\oplus$'s commutativity property and the fact that to undo a $\oplus$ you perform $\oplus$ on the result with either term (Shown as the last property in the list above)
+
+### The `encrypt` Function
 Now that the `blockify`, `xor` and `pad` functions have been discussed, the main encryption function can be looked at.
 ```python
     def encrypt(self, pt, iv):
@@ -174,7 +176,7 @@ Now that the `blockify`, `xor` and `pad` functions have been discussed, the main
 ```
 The first step of the `encrypt` function is for the message to be padded and then split into blocks using the aforementioned `pad` and `blockify` functions. Thereafter, a variable named $xor\\_block$ is set to the intermediate value ( $IV$ ) which is the result of a Cryptographically Secure Psuedo-Random Number Generator (CSPRNG). Then, each $block$ is $\oplus$'ed with $xor\\_block$ and subsequently encrypted using the `AES-ECB` objected created in `AESWCM.__init__`. A very important part of this process is that $xor\\_block$ is changed with each iteration be the $\oplus$ of the created $ct\\_block$ and $block$. This manual addition essentially turns the `AES-ECB` encryption into something similar to `AES-CBC` which we will quickly review.
 ### A Review of `AES-CBC`
-Similarly to `AES-ECB`, `AES-CBC` is a block cipher and a provided plaintext is divided into blocks for encryption. However, unlike `AES-ECB`, each $pt$ block is $\oplus$'ed with an Intermediate Value ( $IV$ ) prior to encryption. The first $IV$ is a random number; however, all subsequent $IV$'s are generated from the $\oplus$'ing of the generated $ct$ block with the next $pt$ block. This removes one of the primary vulnerabilities of `AES-ECB` where blocks consisting of the same plaintext receive the same ciphertext.
+Similarly to `AES-ECB`, `AES-CBC` is a block cipher and a provided plaintext is divided into blocks for encryption. However, unlike `AES-ECB`, each $pt$ block is $\oplus$'ed with an Intermediate Value ( $IV$ ) prior to encryption. The first $IV$ is a random number; however, all subsequent $IV$'s are generated from the $\oplus$'ing of the generated $ct$ block with the next $pt$ block. This removes one of the primary vulnerabilities of `AES-ECB` where blocks consisting of the same plaintext receive the same ciphertext. Here is a colorful graph for you to ponder:
 ```mermaid
 flowchart TD
     classDef default fill:#0080FF,stroke:#000,color:#000
@@ -220,7 +222,7 @@ flowchart TD
     k3-->e3
 ```
 ## Back to `encrypt`
-Now, returning to the `encrypt` function we notice a peculiarily. In typical `AES-CBC` implementation, there is not a $xor\\_block$ but instead the previous $ct$ is $\oplus$'ed with the current $pt$ ( $ct=IV$ in the case of the first block ), this peculiarity will be important later on. Creating a flow chart for the actual `AESWCM` process provides the following:
+Now, returning to the `encrypt` function we notice a peculiarity. In typical `AES-CBC` implementations, there is not a $xor\\_block$ but instead the previous $ct$ is $\oplus$'ed with the current $pt$ ( $ct=IV$ in the case of the first block ), this peculiarity will be important later on. Creating a flow chart for the actual `AESWCM` process provides the following:
 ```mermaid
 flowchart TD
     classDef default fill:#0080FF,stroke:#000,color:#000
@@ -275,7 +277,7 @@ flowchart TD
 ```
 
 ### `tag` Function
-The final funtion in the `AESWCM` class and same function called inside `main` is the `tag` function. This function acts as an outline for the entire creation process of a wand characteristic's tag and is incredibly important. Thankfully, it is also quite simple.
+The final funtion in the `AESWCM` class and the same function called inside `main` is the `tag` function. This function acts as an outline for the entire creation process of a wand characteristic's tag and is incredibly important. Thankfully, it is also quite simple.
 ```python
     def tag(self, pt, iv=os.urandom(16)):
         blocks = self.blockify(bytes.fromhex(self.encrypt(pt, iv)))
@@ -293,8 +295,8 @@ A majority of the work performed by this function ocurrs within its first line w
 Now that we fully understand the happenings of the script, it is time to break it and cause a collision, and in order to facilitate this let's work backwards. The tag added to list is a result of the $\oplus$ of all the current characteristic's $ct$ blocks ( $ct_1, ct_2, ct_3, ...$ ), because $\oplus$ is commutative the random shuffling of the blocks is of little importance. From the $\oplus$ properties above it can be understood that for a collision to occur, then the result of two `tag` calls must be the same. The simplest manner by which this can be achieved is by first passing enough plaintext for a singular block, and then somehow having the second block be a repetition of $0$'s; however, this becomes difficult due to the AES encryption by an unknown key, finding the characteristic that would result in a $0$ block is difficult.  
   
 Therefore, the next best option, is for the result of a $\oplus$ being *'undone'* by another $\oplus$, this requires $3$ steps (which we coincidentally have).
-1. Determining the ciphertext of the first block ( $ct_1$ ) and the next xor block $xor\\_block_2$
-2. Determining the ciphertext of the first block ( $ct_2$ ) and the next xor block $xor\\_block_3$
+1. Determining the ciphertext of the first block ( $ct_1$ ) and the next xor block ( $xor\\_block_2$ )
+2. Determining the ciphertext of the first block ( $ct_2$ ) and the next xor block ( $xor\\_block_3$ )
 3. Inputting a final block ( $pt_3$ ) that encrypts to the same as the second or first block ( $ct_3=ct_2$ or $ct_3=ct_1$ )
 
 ### Determining the Ciphertext of the First Block
@@ -313,7 +315,7 @@ $xor\\_block_2 \oplus pt_2 \oplus xor\\_block_3 = pt_3$.
 Therefore, the plaintext for block $3$ ( $pt_3$ ) needs to be $xor\\_block_2 \oplus pt_2 \oplus xor\\_block_3$.
 
 ### Putting it All Together
-Putting all of these steps together, I created the following crude and manual (ew) code:
+Putting all of these steps together, I created the following crude and manual (Don't judge me I didn't know how to use pwntools) code:
 ```python
 message = "Property: "
 def xor(a, b):
