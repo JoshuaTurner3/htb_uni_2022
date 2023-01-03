@@ -273,8 +273,8 @@ flowchart TD
     k2-->e2
     k3-->e3
 ```
-### Tag Function
-TODO TODO TODO
+### tag Function
+The final funtion in the `AESWCM` class and the one called inside `main` is the `tag` function. This function acts as an outline for the entire creation process of a wand characteristic's tag and is incredibly important. Thankfully, it is also quite simple.
 ```python
     def tag(self, pt, iv=os.urandom(16)):
         blocks = self.blockify(bytes.fromhex(self.encrypt(pt, iv)))
@@ -286,8 +286,7 @@ TODO TODO TODO
 
         return ct.hex()
 ```
-
-
-### Decrypt Function
-
+A majority of the work performed by this function ocurrs within its first line where the encrypt function is called on the passed `pt` and subsequently split into blocks once more. These blocks are then randomly shuffled, and the first block in the `blocks` list is $\oplus$ed with every other block in `blocks` and then returned. See? It's pretty straightforward.
+### Exploit
+Now that we fully understand the happenings of the script, it is time to break it and cause a collision, and what better place to start than with the peculiar `AES-CBC` encryption within the `encrypt` function? 
 ## Conclusion
