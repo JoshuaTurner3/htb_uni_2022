@@ -9,7 +9,7 @@ Following this, the user can input any property in hex which is then added as a 
 ```
 Only different properties are allowed!
 ```
-and following this prompt will exit. A full example of a server interaction is as so:
+and following this error prompt will exit. A full example of a server interaction is as so:
 ```
 What properties should your magic wand have?
 Property: FF
